@@ -1,0 +1,393 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+#uno{padding:12px;font-family:var(--font-sans);min-height:580px;}
+.status-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:var(--color-background-secondary);border-radius:8px;border:0.5px solid var(--color-border-tertiary);font-size:13px;color:var(--color-text-secondary);margin-bottom:10px;}
+.status-bar strong{color:var(--color-text-primary);}
+.opp-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--color-background-secondary);border-radius:8px;border:0.5px solid var(--color-border-tertiary);margin-bottom:8px;}
+.opp-name{font-size:13px;font-weight:500;color:var(--color-text-primary);min-width:60px;}
+.opp-cards{display:flex;gap:3px;flex-wrap:wrap;}
+.opp-card-back{width:28px;height:40px;border-radius:5px;background:#1a3a6b;border:1.5px solid #0d2550;}
+.opp-count{font-size:12px;color:var(--color-text-secondary);margin-left:4px;}
+.active-indicator{width:8px;height:8px;border-radius:50%;background:#22b573;flex-shrink:0;}
+.active-indicator.off{background:var(--color-border-tertiary);}
+.center{display:flex;justify-content:center;align-items:center;gap:28px;padding:12px 0;}
+.pile-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.pile-lbl{font-size:11px;color:var(--color-text-secondary);letter-spacing:.05em;}
+.card{width:62px;height:90px;border-radius:9px;border:2px solid rgba(0,0,0,.12);display:flex;flex-direction:column;justify-content:space-between;padding:5px;cursor:pointer;position:relative;transition:transform .12s;flex-shrink:0;}
+.card:hover{transform:translateY(-5px);}
+.card-tl{font-size:11px;font-weight:700;line-height:1;}
+.card-center{font-size:18px;font-weight:700;text-align:center;flex:1;display:flex;align-items:center;justify-content:center;}
+.card-br{font-size:11px;font-weight:700;line-height:1;transform:rotate(180deg);}
+.card.red{background:#e53935;color:#fff;border-color:#b71c1c;}
+.card.blue{background:#1e88e5;color:#fff;border-color:#1565c0;}
+.card.green{background:#43a047;color:#fff;border-color:#2e7d32;}
+.card.yellow{background:#fdd835;color:#333;border-color:#f9a825;}
+.card.black{background:#212121;color:#fff;border-color:#000;}
+.card.selected{transform:translateY(-12px);border:2px solid #fff;box-shadow:0 0 0 3px #2a7af3;}
+.card.playable{border-color:#fff;filter:brightness(1.08);}
+.card.unplayable{opacity:.42;cursor:default;}
+.card.unplayable:hover{transform:none;}
+.card-back{width:62px;height:90px;border-radius:9px;background:#1a3a6b;border:2px solid #0d2550;cursor:pointer;}
+.msg-box{text-align:center;padding:9px 14px;border-radius:8px;font-size:13px;font-weight:500;margin-bottom:8px;}
+.msg-info{background:var(--color-background-info);color:var(--color-text-info);border:0.5px solid var(--color-border-info);}
+.msg-warn{background:var(--color-background-warning);color:var(--color-text-warning);border:0.5px solid var(--color-border-warning);}
+.msg-success{background:var(--color-background-success);color:var(--color-text-success);border:0.5px solid var(--color-border-success);}
+.msg-danger{background:var(--color-background-danger);color:var(--color-text-danger);border:0.5px solid var(--color-border-danger);}
+.player-area{background:var(--color-background-secondary);border-radius:10px;border:0.5px solid var(--color-border-tertiary);padding:10px;}
+.player-lbl{font-size:12px;color:var(--color-text-secondary);margin-bottom:7px;}
+.hand{display:flex;flex-wrap:wrap;gap:6px;min-height:100px;align-items:flex-end;}
+.controls{display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap;}
+.btn{padding:7px 18px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:13px;cursor:pointer;transition:background .1s,transform .1s;}
+.btn:hover{background:var(--color-background-secondary);}
+.btn:active{transform:scale(.97);}
+.btn.primary{background:#2a7af3;color:#fff;border-color:#2a7af3;}
+.btn.primary:hover{background:#1a6ae3;}
+.btn.danger{background:var(--color-background-danger);color:var(--color-text-danger);border-color:var(--color-border-danger);}
+.color-pick{display:flex;gap:8px;justify-content:center;margin:6px 0;flex-wrap:wrap;}
+.cbtn{padding:8px 16px;border-radius:8px;border:2px solid transparent;font-size:13px;font-weight:700;cursor:pointer;transition:transform .1s;}
+.cbtn:hover{transform:scale(1.06);}
+.cbtn.red{background:#e53935;color:#fff;border-color:#b71c1c;}
+.cbtn.blue{background:#1e88e5;color:#fff;border-color:#1565c0;}
+.cbtn.green{background:#43a047;color:#fff;border-color:#2e7d32;}
+.cbtn.yellow{background:#fdd835;color:#333;border-color:#f9a825;}
+.end-box{background:var(--color-background-primary);border-radius:12px;border:0.5px solid var(--color-border-tertiary);padding:2rem;text-align:center;max-width:320px;margin:2rem auto;}
+.end-box h2{font-size:22px;font-weight:500;margin-bottom:8px;}
+.end-box p{font-size:14px;color:var(--color-text-secondary);margin-bottom:1.5rem;}
+.same-rank-hint{font-size:11px;color:var(--color-text-tertiary);text-align:center;margin-top:4px;}
+.reflect-hint{font-size:12px;color:var(--color-text-warning);text-align:center;padding:4px 8px;background:var(--color-background-warning);border-radius:6px;margin-bottom:6px;}
+</style>
+<h2 class="sr-only">우노 게임 — 플레이어 대 AI 3인, 반사 룰 포함</h2>
+<div id="uno"><div id="root"></div></div>
+<script>
+const COLORS=['red','blue','green','yellow'];
+const LABELS={skip:'정지',reverse:'반전','+2':'+2','+4':'+4',wild:'색변경'};
+const CNAMES={red:'빨강',blue:'파랑',green:'초록',yellow:'노랑',black:'검정'};
+const PNAMES=['나','AI-1','AI-2','AI-3'];
+
+function makeDeck(){
+  const d=[];
+  for(const c of COLORS){
+    d.push({color:c,type:'number',value:'0'});
+    for(let n=1;n<=9;n++){
+      d.push({color:c,type:'number',value:String(n)});
+      d.push({color:c,type:'number',value:String(n)});
+    }
+    for(const s of ['skip','reverse','+2']){
+      d.push({color:c,type:'special',value:s});
+      d.push({color:c,type:'special',value:s});
+    }
+  }
+  for(let i=0;i<4;i++){
+    d.push({color:'black',type:'wild',value:'+4'});
+    d.push({color:'black',type:'wild',value:'wild'});
+  }
+  return shuffle(d);
+}
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+let G={};
+
+function initGame(){
+  const deck=makeDeck();
+  const hands=[[],[],[],[]];
+  for(let i=0;i<7;i++)for(let p=0;p<4;p++)hands[p].push(deck.pop());
+  let top=deck.pop();
+  while(top.type==='wild'){deck.unshift(top);top=deck.pop();}
+  G={
+    deck,discard:[top],hands,
+    turn:0,dir:1,phase:'play',
+    drawStack:0,activeColor:top.color,
+    msg:'게임 시작! 카드를 내세요.',msgType:'info',
+    selected:[],colorPickFor:null,pendingWild:null,
+  };
+  render();
+}
+
+function topCard(){return G.discard[G.discard.length-1];}
+
+function canPlayOn(card){
+  const top=topCard();
+  if(G.drawStack>0){
+    if(card.value==='reverse')return true;
+    if(top.value==='+2'&&(card.value==='+2'||card.value==='+4'))return true;
+    if(top.value==='+4'&&card.value==='+4')return true;
+    return false;
+  }
+  if(card.type==='wild')return true;
+  if(card.color===G.activeColor)return true;
+  if(card.value===top.value)return true;
+  return false;
+}
+
+function isNumberCard(v){return ['0','1','2','3','4','5','6','7','8','9'].includes(v);}
+
+function cardLabel(c){
+  if(c.type==='number')return c.value;
+  return LABELS[c.value]||c.value;
+}
+
+function render(){
+  const root=document.getElementById('root');
+  if(!root)return;
+
+  if(G.phase==='end'){
+    root.innerHTML=`<div class="end-box">
+      <div style="font-size:48px;margin-bottom:12px">${G.winner===0?'🎉':'😞'}</div>
+      <h2>${G.winner===0?'승리!':'패배!'}</h2>
+      <p>${PNAMES[G.winner]}이(가) 먼저 카드를 모두 냈습니다!</p>
+      <button class="btn primary" id="restartBtn">다시 시작</button>
+    </div>`;
+    document.getElementById('restartBtn').onclick=initGame;
+    return;
+  }
+
+  const isMyTurn=G.turn===0;
+  const top=topCard();
+  const playable=G.hands[0].map((_,i)=>i).filter(i=>canPlayOn(G.hands[0][i]));
+  const sel=G.selected;
+  const selValid=sel.length>0&&(
+    (sel.length===1&&canPlayOn(G.hands[0][sel[0]]))||
+    (sel.length>1&&sel.every(i=>isNumberCard(G.hands[0][i].value)&&G.hands[0][i].value===G.hands[0][sel[0]].value&&canPlayOn(G.hands[0][i])))
+  );
+
+  const hasReflect=G.drawStack>0&&isMyTurn&&G.hands[0].some(c=>c.value==='reverse');
+  const reflectHint=hasReflect&&G.colorPickFor===null?`<div class="reflect-hint">반전 카드로 공격 반사 가능! (+${G.drawStack}장을 공격자에게 돌려보냄)</div>`:'';
+
+  const oppRows=PNAMES.slice(1).map((_,i)=>{
+    const pi=i+1;
+    const h=G.hands[pi];
+    const backs=Array(Math.min(h.length,16)).fill(0).map(()=>`<div class="opp-card-back"></div>`).join('');
+    return `<div class="opp-row">
+      <div class="active-indicator ${G.turn===pi?'':'off'}"></div>
+      <div class="opp-name">${PNAMES[pi]}</div>
+      <div class="opp-cards">${backs}</div>
+      <div class="opp-count">${h.length}장${h.length===1?' 🔴':''}</div>
+    </div>`;
+  }).join('');
+
+  const handHTML=G.hands[0].map((c,i)=>{
+    const isSel=sel.includes(i);
+    const isPlay=playable.includes(i);
+    let cls='';
+    if(!isMyTurn||G.colorPickFor!==null){cls='unplayable';}
+    else if(isSel){cls='selected';}
+    else if(isPlay){cls='playable';}
+    else{cls='unplayable';}
+    return `<div class="card ${c.color} ${cls}" data-idx="${i}">
+      <div class="card-tl">${cardLabel(c)}</div>
+      <div class="card-center">${cardLabel(c)}</div>
+      <div class="card-br">${cardLabel(c)}</div>
+    </div>`;
+  }).join('');
+
+  let colorPickHTML='';
+  if(G.colorPickFor!==null){
+    colorPickHTML=`<div class="color-pick">
+      ${COLORS.map(c=>`<button class="cbtn ${c}" data-color="${c}">${CNAMES[c]}</button>`).join('')}
+    </div>`;
+  }
+
+  root.innerHTML=`
+    <div class="status-bar">
+      <span>덱 <strong>${G.deck.length}</strong>장</span>
+      <span>${G.dir===1?'↻ 순서':'↺ 역순'}</span>
+      <span>현재 색: <strong style="color:${{red:'#e53935',blue:'#1e88e5',green:'#43a047',yellow:'#b8940a',black:'var(--color-text-primary)'}[G.activeColor]}">${CNAMES[G.activeColor]}</strong></span>
+    </div>
+    ${oppRows}
+    <div class="center">
+      <div class="pile-wrap">
+        <div class="pile-lbl">덱</div>
+        <div class="card-back" id="deckPile"></div>
+      </div>
+      <div class="pile-wrap">
+        <div class="pile-lbl">버린 카드${G.drawStack>0?` — 누적 +${G.drawStack}`:''}</div>
+        <div class="card ${top.color} unplayable">
+          <div class="card-tl">${cardLabel(top)}</div>
+          <div class="card-center">${cardLabel(top)}</div>
+          <div class="card-br">${cardLabel(top)}</div>
+        </div>
+      </div>
+    </div>
+    <div class="msg-box msg-${G.msgType}">${G.msg}</div>
+    ${reflectHint}
+    ${colorPickHTML}
+    <div class="player-area">
+      <div class="player-lbl">내 패 (${G.hands[0].length}장)${G.hands[0].length===1?' 🔴 UNO!':''} ${isMyTurn&&G.colorPickFor===null?'— 카드 클릭 선택, 다시 클릭하면 내기':'— 상대 턴 대기 중'}</div>
+      <div class="hand" id="playerHand">${handHTML}</div>
+      ${sel.length>1?`<div class="same-rank-hint">같은 숫자 ${sel.length}장 동시에 내기 가능</div>`:''}
+    </div>
+    <div class="controls">
+      ${isMyTurn&&G.colorPickFor===null?`<button class="btn" id="drawBtn">${G.drawStack>0?`카드 ${G.drawStack}장 받기`:'카드 뽑기'}</button>`:''}
+      ${selValid&&G.colorPickFor===null?`<button class="btn primary" id="playBtn">선택한 카드 내기${sel.length>1?` (${sel.length}장)`:''}</button>`:''}
+      <button class="btn danger" id="newGameBtn">새 게임</button>
+    </div>
+  `;
+
+  document.getElementById('playerHand')?.addEventListener('click',e=>{
+    if(!isMyTurn||G.colorPickFor!==null)return;
+    const el=e.target.closest('.card[data-idx]');
+    if(!el)return;
+    const idx=parseInt(el.dataset.idx);
+    const c=G.hands[0][idx];
+    if(!canPlayOn(c))return;
+    if(sel.includes(idx)){
+      if(sel.length===1)playerPlayCards([idx]);
+      else{G.selected=sel.filter(i=>i!==idx);render();}
+    } else {
+      const newSel=[...sel,idx];
+      if(newSel.length===1){G.selected=[idx];render();}
+      else{
+        const allSameNum=newSel.every(i=>isNumberCard(G.hands[0][i].value)&&G.hands[0][i].value===G.hands[0][newSel[0]].value);
+        if(allSameNum){G.selected=newSel;render();}
+        else{playerPlayCards([idx]);}
+      }
+    }
+  });
+
+  document.getElementById('drawBtn')?.addEventListener('click',playerDraw);
+  document.getElementById('playBtn')?.addEventListener('click',()=>{if(selValid)playerPlayCards(sel);});
+  document.getElementById('newGameBtn')?.addEventListener('click',initGame);
+  document.getElementById('deckPile')?.addEventListener('click',()=>{if(isMyTurn&&G.colorPickFor===null)playerDraw();});
+  document.querySelectorAll('.cbtn[data-color]').forEach(btn=>{
+    btn.addEventListener('click',()=>chooseColor(btn.dataset.color));
+  });
+}
+
+function playerPlayCards(indices){
+  if(G.turn!==0)return;
+  const sorted=[...indices].sort((a,b)=>b-a);
+  const cards=indices.map(i=>G.hands[0][i]);
+  sorted.forEach(i=>G.hands[0].splice(i,1));
+  G.selected=[];
+  cards.forEach(c=>G.discard.push(c));
+  if(G.hands[0].length===0){G.phase='end';G.winner=0;render();return;}
+  applyCardEffect(cards[cards.length-1],0);
+}
+
+function applyCardEffect(card,playerIdx){
+  if(card.value==='+2'){
+    G.drawStack+=2;
+    G.activeColor=card.color;
+    G.msg=`+2 공격! 누적 ${G.drawStack}장 — 받거나, +2/+4/반전으로 대응하세요`;
+    G.msgType='warn';
+    advanceTurn(playerIdx);
+    scheduleNext(playerIdx);
+  } else if(card.value==='+4'){
+    G.drawStack+=4;
+    G.msg=`+4 공격! 누적 ${G.drawStack}장 — 받거나, +4/반전으로 대응하세요`;
+    G.msgType='warn';
+    if(playerIdx===0){G.colorPickFor=0;render();return;}
+    const aiColor=bestColor(G.hands[playerIdx]);
+    G.activeColor=aiColor;
+    G.msg=`+4! AI가 ${CNAMES[aiColor]} 선택. 누적 ${G.drawStack}장`;
+    advanceTurn(playerIdx);
+    scheduleNext(playerIdx);
+  } else if(card.value==='wild'){
+    if(playerIdx===0){G.colorPickFor=0;render();return;}
+    const aiColor=bestColor(G.hands[playerIdx]);
+    G.activeColor=aiColor;
+    G.msg=`${PNAMES[playerIdx]}이(가) 색 변경: ${CNAMES[aiColor]}`;
+    G.msgType='info';
+    advanceTurn(playerIdx);
+    scheduleNext(playerIdx);
+  } else if(card.value==='reverse'){
+    if(G.drawStack>0){
+      G.dir*=-1;
+      G.activeColor=card.color;
+      const prevPlayer=((playerIdx-G.dir)+4)%4;
+      G.msg=`반사! 방향 반전 — 공격이 ${PNAMES[prevPlayer]}에게 돌아갑니다! (누적 +${G.drawStack}장)`;
+      G.msgType='warn';
+      scheduleNext(playerIdx);
+    } else {
+      G.dir*=-1;
+      G.activeColor=card.color;
+      G.msg=`${PNAMES[playerIdx]}이(가) 방향 반전!`;
+      G.msgType='info';
+      advanceTurn(playerIdx);
+      scheduleNext(playerIdx);
+    }
+  } else if(card.value==='skip'){
+    G.activeColor=card.color;
+    const skipped=nextPlayer(playerIdx);
+    G.msg=`${PNAMES[skipped]} 정지!`;
+    G.msgType='warn';
+    advanceTurn(playerIdx);
+    advanceTurn(playerIdx);
+    scheduleNext(playerIdx);
+  } else {
+    G.activeColor=card.color;
+    G.msg='';G.msgType='info';
+    advanceTurn(playerIdx);
+    scheduleNext(playerIdx);
+  }
+  if(G.turn===0&&!G.msg)G.msg='카드를 내세요.';
+}
+
+function scheduleNext(fromPlayer){
+  if(G.turn!==0){render();setTimeout(aiTurn,750);}
+  else{if(!G.msg)G.msg='카드를 내세요.';render();}
+}
+
+function chooseColor(color){
+  G.activeColor=color;
+  G.colorPickFor=null;
+  G.msg=`색 선택: ${CNAMES[color]}`;
+  G.msgType='info';
+  advanceTurn(0);
+  scheduleNext(0);
+}
+
+function nextPlayer(from){return((from+G.dir)+4)%4;}
+function advanceTurn(from){G.turn=((G.turn+G.dir)+4)%4;}
+
+function playerDraw(){
+  if(G.turn!==0)return;
+  const n=G.drawStack>0?G.drawStack:1;
+  for(let i=0;i<n;i++){if(G.deck.length===0)reshuffleDeck();if(G.deck.length>0)G.hands[0].push(G.deck.pop());}
+  G.msg=`카드 ${n}장을 받았습니다.`;G.msgType='info';G.drawStack=0;G.selected=[];
+  advanceTurn(0);scheduleNext(0);
+}
+
+function reshuffleDeck(){const top=G.discard.pop();G.deck=shuffle(G.discard);G.discard=[top];}
+function bestColor(hand){const cnt={red:0,blue:0,green:0,yellow:0};hand.forEach(c=>{if(cnt[c.color]!==undefined)cnt[c.color]++;});return COLORS.reduce((a,b)=>cnt[a]>=cnt[b]?a:b);}
+
+function aiTurn(){
+  if(G.phase!=='play')return;
+  const pi=G.turn;if(pi===0)return;
+  const hand=G.hands[pi];
+  const playable=hand.filter(c=>canPlayOn(c));
+
+  if(G.drawStack>0){
+    const reverseCard=hand.find(c=>c.value==='reverse');
+    const attackCard=hand.find(c=>c.value==='+4'||(c.value==='+2'&&topCard().value!=='+4'));
+    const respondCard=reverseCard||attackCard;
+    if(!respondCard){
+      for(let i=0;i<G.drawStack;i++){if(G.deck.length===0)reshuffleDeck();if(G.deck.length>0)hand.push(G.deck.pop());}
+      G.msg=`${PNAMES[pi]}이(가) ${G.drawStack}장을 받았습니다.`;G.drawStack=0;G.msgType='info';
+      advanceTurn(pi);scheduleNext(pi);return;
+    }
+    const i=hand.indexOf(respondCard);hand.splice(i,1);G.discard.push(respondCard);
+    if(hand.length===0){G.phase='end';G.winner=pi;render();return;}
+    applyCardEffect(respondCard,pi);return;
+  }
+
+  if(playable.length===0){
+    if(G.deck.length===0)reshuffleDeck();
+    if(G.deck.length>0)hand.push(G.deck.pop());
+    G.msg=`${PNAMES[pi]}이(가) 카드를 뽑았습니다.`;G.msgType='info';
+    advanceTurn(pi);scheduleNext(pi);return;
+  }
+
+  let pick=playable.find(c=>c.value==='+4')||playable.find(c=>c.value==='+2')||playable.find(c=>c.value==='skip')||playable.find(c=>c.value==='reverse')||playable.find(c=>c.value==='wild')||playable[0];
+  const sameNum=isNumberCard(pick.value)?hand.filter(c=>c.value===pick.value&&canPlayOn(c)):[];
+  const toPlay=sameNum.length>1?sameNum:[pick];
+  toPlay.forEach(c=>{const i=hand.indexOf(c);if(i>=0)hand.splice(i,1);G.discard.push(c);});
+  G.msg=`${PNAMES[pi]}이(가) ${cardLabel(pick)}${toPlay.length>1?` ${toPlay.length}장`:''} (${CNAMES[pick.color]}) 냄.`;
+  if(hand.length===0){G.phase='end';G.winner=pi;render();return;}
+  if(hand.length===1)G.msg+=' UNO!';
+  applyCardEffect(pick,pi);
+}
+
+initGame();
+</script>
